@@ -17,7 +17,7 @@ namespace Chessington.GameEngine
             for (int row = position.Row + 1; row < GameSettings.BoardSize; row++)
             {
                 var newPosition = new Square(row, position.Col);
-                AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves); ;
+                AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves);
 
                 if (board.IsOccupied(newPosition))
                 {
@@ -48,7 +48,7 @@ namespace Chessington.GameEngine
                 var newPosition = new Square(position.Row, column);
                 AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves);
 
-                if (board.IsOccupied(newPosition))
+                if (OccupiedByAny(newPosition, board))
                 {
                     break;
                 }
@@ -58,7 +58,7 @@ namespace Chessington.GameEngine
                 var newPosition = new Square(position.Row, column);
                 AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves);
 
-                if (board.IsOccupied(newPosition))
+                if (OccupiedByAny(newPosition, board))
                 {
                     break;
                 }
@@ -79,7 +79,7 @@ namespace Chessington.GameEngine
                 var newPosition = new Square(row, column);
                 AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves);
 
-                if (board.IsOccupied(newPosition))
+                if (OccupiedByAny(newPosition, board))
                 {
                     break;
                 }
@@ -94,7 +94,7 @@ namespace Chessington.GameEngine
                 var newPosition = new Square(row, column);
                 AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves);
 
-                if (board.IsOccupied(newPosition))
+                if (OccupiedByAny(newPosition, board))
                 {
                     break;
                 }
@@ -117,7 +117,7 @@ namespace Chessington.GameEngine
                 var newPosition = new Square(row, column);
                 AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves);
 
-                if (board.IsOccupied(newPosition))
+                if (OccupiedByAny(newPosition, board))
                 {
                     break;
                 }
@@ -132,7 +132,7 @@ namespace Chessington.GameEngine
                 var newPosition = new Square(row, column);
                 AddIfSafeOrDiscardMove(piece, board, newPosition, availableMoves);
 
-                if (board.IsOccupied(newPosition))
+                if (OccupiedByAny(newPosition, board))
                 {
                     break;
                 }
@@ -213,7 +213,7 @@ namespace Chessington.GameEngine
         private static void AddIfSafeOrDiscardMove(Piece piece, Board board, Square newSquare, List<Square> availableMoves)
         {
             if (CheckSquareInBoard(newSquare) && (OccupiedByOtherPlayer(piece, newSquare, board) ||
-                                                  !OccupiedByAny(piece, newSquare, board)))
+                                                  !OccupiedByAny(newSquare, board)))
             {
                 availableMoves.Add(newSquare);
             }
@@ -221,7 +221,7 @@ namespace Chessington.GameEngine
 
         private static void AddIfSafeOrDiscardPawnMove(Piece piece, Board board, Square newSquare, List<Square> availableMoves)
         {
-            if (CheckSquareInBoard(newSquare) && ((!OccupiedByAny(piece, newSquare, board) &&
+            if (CheckSquareInBoard(newSquare) && ((!OccupiedByAny(newSquare, board) &&
                                                    newSquare.Col == board.FindPiece(piece).Col) ||
                                                   (OccupiedByOtherPlayer(piece, newSquare, board) &&
                                                   newSquare.Col != board.FindPiece(piece).Col)))
@@ -243,10 +243,89 @@ namespace Chessington.GameEngine
                 board.GetPiece(square).Player != piece.Player);
         }
 
-        private static bool OccupiedByAny(Piece piece, Square square, Board board)
+        private static bool OccupiedByAny(Square square, Board board)
         {
             return board.IsOccupied(square);
         }
 
+        private static bool CheckAccessBlocked(Piece piece, Square square, Board board)
+        {
+            if (board.FindPiece(piece).Row == square.Row)
+            {
+                return CheckHorizonalAccessBlocked(piece, square, board);
+            }
+            if (board.FindPiece(piece).Col == square.Col)
+            {
+                return CheckVerticalAccessBlocked(piece, square, board);
+            }
+            if (board.FindPiece(piece).Col - square.Col +
+                board.FindPiece(piece).Row - square.Row == 0)
+            {
+                return CheckAscendingAccessBlocked(piece, square, board);
+            }
+
+            return CheckDescendingAccessBlocked(piece, square, board);
+        }
+
+        private static bool CheckHorizonalAccessBlocked(Piece piece, Square square, Board board)
+        {
+            int difference = board.FindPiece(piece).Col - square.Col;
+            foreach (var passingCol in Enumerable.Range(difference + 1, difference - 1))
+            {
+                if (OccupiedByAny(new Square(square.Row, passingCol), board))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool CheckVerticalAccessBlocked(Piece piece, Square square, Board board)
+        {
+            int difference = board.FindPiece(piece).Row - square.Row;
+            foreach (var passingRow in Enumerable.Range(difference + 1, difference - 1))
+            {
+                if (OccupiedByAny(new Square(passingRow, square.Col), board))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool CheckAscendingAccessBlocked(Piece piece, Square square, Board board)
+        {
+            int difference = board.FindPiece(piece).Col - square.Col;
+            foreach (var passingRow in Enumerable.Range(difference + 1, difference - 1))
+            {
+                foreach (var passingCol in Enumerable.Range(difference + 1, difference - 1))
+                {
+                    if (OccupiedByAny(new Square(passingRow, passingCol), board))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static bool CheckDescendingAccessBlocked(Piece piece, Square square, Board board)
+        {
+            int difference = board.FindPiece(piece).Col - square.Col;
+            foreach (var passingRow in Enumerable.Range(board.FindPiece(piece).Row - difference + 1, difference - 1))
+            {
+                foreach (var passingCol in Enumerable.Range(difference + 1, difference - 1))
+                {
+                    if (OccupiedByAny(new Square(passingRow, passingCol), board))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        //private static bool CheckEnPassant(Piece piece, Square square, Board board)
     }
 }
