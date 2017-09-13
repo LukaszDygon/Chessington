@@ -14,59 +14,18 @@ namespace Chessington.GameEngine.Pieces
         public override IEnumerable<Square> GetAvailableMoves(Board board)
         {
             var availableMoves = new List<Square>();
+            var position = board.FindPiece(this);
+
             if (this.Player == Player.Black)
             {
-                AddBlackMoves(availableMoves, board);
+                availableMoves.AddRange(AvailableMoveChecker.AddBlackPawnMoves(position, board));
             }
             else
             {
-                AddWhiteMoves(availableMoves, board);
+                availableMoves.AddRange(AvailableMoveChecker.AddWhitePawnMoves(position, board));
             }
             return availableMoves;
         }
-
-        private void AddBlackMoves(List<Square> availableMoves, Board board)
-        {
-            var position = board.FindPiece(this);
-            var potentialMoves = new List<Square>();
-
-            potentialMoves.Add(new Square(position.Row + 1, position.Col));
-
-            if (!board.MoveHistory.Any(x => x.Piece == this))
-            {
-                potentialMoves.Add(new Square(position.Row + 2, position.Col));
-            }
-
-            foreach (var potentialMove in potentialMoves)
-            {
-                if (!board.IsOccupied(potentialMove))
-                {
-                    availableMoves.Add(potentialMove);
-                }
-            }
-        }
-
-        private void AddWhiteMoves(List<Square> availableMoves, Board board)
-        {
-            var position = board.FindPiece(this);
-            var potentialMoves = new List<Square>();
-
-            potentialMoves.Add(new Square(position.Row - 1, position.Col));
-
-            if (!board.MoveHistory.Any(x => x.Piece == this))
-            {
-                potentialMoves.Add(new Square(position.Row - 2, position.Col));
-            }
-
-            foreach (var potentialMove in potentialMoves)
-            {
-                if (!board.IsOccupied(potentialMove))
-                {
-                    availableMoves.Add(potentialMove);
-                }
-            }
-        }
-
         
     }
 }

@@ -137,5 +137,49 @@ namespace Chessington.GameEngine
 
             return availableMoves;
         }
+
+        public static List<Square> AddBlackPawnMoves(Square position, Board board)
+        {
+            var potentialMoves = new List<Square>();
+            var availableMoves = new List<Square>();
+
+            potentialMoves.Add(new Square(position.Row + 1, position.Col));
+
+            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)))
+            {
+                potentialMoves.Add(new Square(position.Row + 2, position.Col));
+            }
+
+            foreach (var potentialMove in potentialMoves)
+            {
+                if (!board.IsOccupied(potentialMove))
+                {
+                    availableMoves.Add(potentialMove);
+                }
+            }
+            return availableMoves;
+        }
+
+        public static List<Square> AddWhitePawnMoves(Square position, Board board)
+        {
+            var potentialMoves = new List<Square>();
+            var availableMoves = new List<Square>();
+
+            potentialMoves.Add(new Square(position.Row - 1, position.Col));
+
+            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)))
+            {
+                potentialMoves.Add(new Square(position.Row - 2, position.Col));
+            }
+
+            foreach (var potentialMove in potentialMoves)
+            {
+                if (!board.IsOccupied(potentialMove))
+                {
+                    availableMoves.Add(potentialMove);
+                }
+            }
+            return availableMoves;
+        }
     }
 }
