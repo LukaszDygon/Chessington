@@ -151,7 +151,7 @@ namespace Chessington.GameEngine
             var oneForwardMove = new Square(position.Row + 1, position.Col);
             AddIfSafeOrDiscardPawnMove(piece, board, oneForwardMove, availableMoves);
 
-            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && !board.IsOccupied(oneForwardMove))
+            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && availableMoves.Count > 0)
             {
                 AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row + 2, position.Col), availableMoves);
             }
@@ -166,7 +166,7 @@ namespace Chessington.GameEngine
             var oneForwardMove = new Square(position.Row - 1, position.Col);
             AddIfSafeOrDiscardPawnMove(piece, board, oneForwardMove, availableMoves);
 
-            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && !board.IsOccupied(oneForwardMove))
+            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && availableMoves.Count > 0)
             {
                 AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row - 2, position.Col), availableMoves);
             }
@@ -195,16 +195,15 @@ namespace Chessington.GameEngine
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
 
-            for (int i = -1; i <= 1; i++)
-            {
-                for (int j = -1; j <= 1; j++)
-                {
-                    if (i != 0 || j != 0)
-                    {
-                        AddIfSafeOrDiscardMove(piece, board, new Square(position.Row + i, position.Col + j), availableMoves);
-                    }
-                }
-            }
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row + 1, position.Col + 1), availableMoves);
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row + 1, position.Col - 1), availableMoves);
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row + 1, position.Col), availableMoves);
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row, position.Col + 1), availableMoves);
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row, position.Col - 1), availableMoves);
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col + 1), availableMoves);
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col - 1), availableMoves);
+            AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col), availableMoves);
+
 
             return availableMoves;
         }
