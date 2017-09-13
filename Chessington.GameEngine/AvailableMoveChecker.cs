@@ -234,7 +234,7 @@ namespace Chessington.GameEngine
         private static bool CheckNotOccupiedByCurrentPlayer(Piece piece, Square square, Board board)
         {
             return !(board.IsOccupied(square) &&
-                board.GetPiece(square).Player != piece.Player);
+                board.GetPiece(square).Player == piece.Player);
         }
 
         private static bool CheckNotOccupiedByAny(Piece piece, Square square, Board board)
