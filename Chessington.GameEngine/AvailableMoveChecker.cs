@@ -143,48 +143,32 @@ namespace Chessington.GameEngine
             return availableMoves;
         }
 
-        public static List<Square> GetBlackPawnMoves(Piece piece, Board board)
+        public static List<Square> GetBlackPawnMoves(Board board, Piece piece)
         {
-            var potentialMoves = new List<Square>();
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
 
-            potentialMoves.Add(new Square(position.Row + 1, position.Col));
+            var oneForwardMove = new Square(position.Row + 1, position.Col);
+            AddIfSafeOrDiscardPawnMove(piece, board, oneForwardMove, availableMoves);
 
-            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)))
+            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && !board.IsOccupied(oneForwardMove))
             {
-                potentialMoves.Add(new Square(position.Row + 2, position.Col));
-            }
-
-            foreach (var potentialMove in potentialMoves)
-            {
-                if (!board.IsOccupied(potentialMove))
-                {
-                    AddIfSafeOrDiscardMove(piece, board, potentialMove, availableMoves);
-                }
+                AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row + 2, position.Col), availableMoves);
             }
             return availableMoves;
         }
 
-        public static List<Square> GetWhitePawnMoves(Piece piece, Board board)
+        public static List<Square> GetWhitePawnMoves(Board board, Piece piece)
         {
-            var potentialMoves = new List<Square>();
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
 
-            potentialMoves.Add(new Square(position.Row - 1, position.Col));
+            var oneForwardMove = new Square(position.Row - 1, position.Col);
+            AddIfSafeOrDiscardPawnMove(piece, board, oneForwardMove, availableMoves);
 
-            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)))
+            if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && !board.IsOccupied(oneForwardMove))
             {
-                potentialMoves.Add(new Square(position.Row - 2, position.Col));
-            }
-
-            foreach (var potentialMove in potentialMoves)
-            {
-                if (!board.IsOccupied(potentialMove))
-                {
-                    AddIfSafeOrDiscardMove(piece, board, potentialMove, availableMoves);
-                }
+                AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row - 2, position.Col), availableMoves);
             }
             return availableMoves;
         }
@@ -227,7 +211,15 @@ namespace Chessington.GameEngine
 
         private static void AddIfSafeOrDiscardMove(Piece piece, Board board, Square newSquare, List<Square> moveList)
         {
-            if (CheckSquareInBoard(newSquare) && CheckNotOccupied(piece, newSquare, board))
+            if (CheckSquareInBoard(newSquare) && CheckNotOccupiedByCurrentPlayer(piece, newSquare, board))
+            {
+                moveList.Add(newSquare);
+            }
+        }
+
+        private static void AddIfSafeOrDiscardPawnMove(Piece piece, Board board, Square newSquare, List<Square> moveList)
+        {
+            if (CheckSquareInBoard(newSquare) && CheckNotOccupiedByAny(piece, newSquare, board))
             {
                 moveList.Add(newSquare);
             }
@@ -240,9 +232,16 @@ namespace Chessington.GameEngine
         }
 
 
-        private static bool CheckNotOccupied(Piece piece, Square square, Board board)
+        private static bool CheckNotOccupiedByCurrentPlayer(Piece piece, Square square, Board board)
         {
-            return true;
+            return !(board.IsOccupied(square) &&
+                board.GetPiece(square).Player != piece.Player);
         }
+
+        private static bool CheckNotOccupiedByAny(Piece piece, Square square, Board board)
+        {
+            return !board.IsOccupied(square);
+        }
+
     }
 }

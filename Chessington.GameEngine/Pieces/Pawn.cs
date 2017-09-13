@@ -15,14 +15,10 @@ namespace Chessington.GameEngine.Pieces
         {
             var availableMoves = new List<Square>();
 
-            if (this.Player == Player.Black)
-            {
-                availableMoves.AddRange(AvailableMoveChecker.GetBlackPawnMoves(this, board));
-            }
-            else
-            {
-                availableMoves.AddRange(AvailableMoveChecker.GetWhitePawnMoves(this, board));
-            }
+            availableMoves.AddRange(this.Player == Player.Black
+                ? AvailableMoveChecker.GetBlackPawnMoves(board, this)
+                : AvailableMoveChecker.GetWhitePawnMoves(board, this));
+
             return availableMoves;
         }
         
