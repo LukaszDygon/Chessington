@@ -9,7 +9,7 @@ namespace Chessington.GameEngine
 {
     public class AvailableMoveChecker
     {
-        public static List<Square> GetVerticalMoves(Board board, Piece piece, int range = GameSettings.BoardSize)
+        public static List<Square> GetVerticalMoves(Board board, Piece piece)
         {
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
@@ -38,7 +38,7 @@ namespace Chessington.GameEngine
             return availableMoves;
         }
 
-        public static List<Square> GetHorizonalMoves(Board board, Piece piece, int range = GameSettings.BoardSize)
+        public static List<Square> GetHorizonalMoves(Board board, Piece piece)
         {
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
@@ -67,7 +67,7 @@ namespace Chessington.GameEngine
             return availableMoves;
         }
 
-        public static List<Square> GetAscendingMoves(Board board, Piece piece, int range = GameSettings.BoardSize)
+        public static List<Square> GetAscendingMoves(Board board, Piece piece)
         {
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
@@ -105,7 +105,7 @@ namespace Chessington.GameEngine
             return availableMoves;
         }
 
-        public static List<Square> GetDescendingMoves(Board board, Piece piece, int range=GameSettings.BoardSize)
+        public static List<Square> GetDescendingMoves(Board board, Piece piece)
         {
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
@@ -202,6 +202,25 @@ namespace Chessington.GameEngine
             AddIfSafeOrDiscardMove(piece, board, new Square(position.Row + 2, position.Col - 1), availableMoves);
             AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col - 2), availableMoves);
             AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 2, position.Col - 1), availableMoves);
+
+            return availableMoves;
+        }
+
+        public static List<Square> GetKingMoves(Board board, Piece piece)
+        {
+            var availableMoves = new List<Square>();
+            var position = board.FindPiece(piece);
+
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    if (i != 0 || j != 0)
+                    {
+                        AddIfSafeOrDiscardMove(piece, board, new Square(position.Row + i, position.Col + j), availableMoves);
+                    }
+                }
+            }
 
             return availableMoves;
         }
