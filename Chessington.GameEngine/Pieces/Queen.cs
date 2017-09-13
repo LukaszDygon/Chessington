@@ -10,13 +10,12 @@ namespace Chessington.GameEngine.Pieces
 
         public override IEnumerable<Square> GetAvailableMoves(Board board)
         {
-            var position = board.FindPiece(this);
             var availableMoves = new List<Square>();
 
-            availableMoves.AddRange(AvailableMoveChecker.GetAscendingMoves(board, position));
-            availableMoves.AddRange(AvailableMoveChecker.GetDescendingMoves(board, position));
-            availableMoves.AddRange(AvailableMoveChecker.GetHorizonalMoves(board, position));
-            availableMoves.AddRange(AvailableMoveChecker.GetVerticalMoves(board, position));
+            availableMoves.AddRange(AvailableMoveChecker.GetAscendingMoves(board, this));
+            availableMoves.AddRange(AvailableMoveChecker.GetDescendingMoves(board, this));
+            availableMoves.AddRange(AvailableMoveChecker.GetHorizonalMoves(board, this));
+            availableMoves.AddRange(AvailableMoveChecker.GetVerticalMoves(board, this));
 
             return availableMoves;
         }

@@ -14,15 +14,14 @@ namespace Chessington.GameEngine.Pieces
         public override IEnumerable<Square> GetAvailableMoves(Board board)
         {
             var availableMoves = new List<Square>();
-            var position = board.FindPiece(this);
 
             if (this.Player == Player.Black)
             {
-                availableMoves.AddRange(AvailableMoveChecker.AddBlackPawnMoves(position, board));
+                availableMoves.AddRange(AvailableMoveChecker.GetBlackPawnMoves(this, board));
             }
             else
             {
-                availableMoves.AddRange(AvailableMoveChecker.AddWhitePawnMoves(position, board));
+                availableMoves.AddRange(AvailableMoveChecker.GetWhitePawnMoves(this, board));
             }
             return availableMoves;
         }
