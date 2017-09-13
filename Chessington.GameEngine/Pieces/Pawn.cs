@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Chessington.GameEngine.Pieces
 {
@@ -13,24 +14,30 @@ namespace Chessington.GameEngine.Pieces
         public override IEnumerable<Square> GetAvailableMoves(Board board)
         {
             var availableMoves = new List<Square>();
-            var position = board.FindPiece(this);
             if (this.Player == Player.Black)
             {
-                AddBlackMoves(availableMoves, position, board);
+                AddBlackMoves(availableMoves, board);
             }
             else
             {
-                AddWhiteMoves(availableMoves, position, board);
+                AddWhiteMoves(availableMoves, board);
             }
             return availableMoves;
         }
 
-        private void AddBlackMoves(List<Square> availableMoves, Square position, Board board)
+        private void AddBlackMoves(List<Square> availableMoves, Board board)
         {
-            var potentialmoves = new List<Square>();
-            potentialmoves.Add(new Square(position.Row + 1, position.Col));
+            var position = board.FindPiece(this);
+            var potentialMoves = new List<Square>();
 
-            foreach (var potentialMove in potentialmoves)
+            potentialMoves.Add(new Square(position.Row + 1, position.Col));
+
+            if (!board.MoveHistory.Any(x => x.Piece == this))
+            {
+                potentialMoves.Add(new Square(position.Row + 2, position.Col));
+            }
+
+            foreach (var potentialMove in potentialMoves)
             {
                 if (!board.IsOccupied(potentialMove))
                 {
@@ -39,12 +46,19 @@ namespace Chessington.GameEngine.Pieces
             }
         }
 
-        private void AddWhiteMoves(List<Square> availableMoves, Square position, Board board)
+        private void AddWhiteMoves(List<Square> availableMoves, Board board)
         {
-            var potentialmoves = new List<Square>();
-            potentialmoves.Add(new Square(position.Row - 1, position.Col));
+            var position = board.FindPiece(this);
+            var potentialMoves = new List<Square>();
 
-            foreach (var potentialMove in potentialmoves)
+            potentialMoves.Add(new Square(position.Row - 1, position.Col));
+
+            if (!board.MoveHistory.Any(x => x.Piece == this))
+            {
+                potentialMoves.Add(new Square(position.Row - 2, position.Col));
+            }
+
+            foreach (var potentialMove in potentialMoves)
             {
                 if (!board.IsOccupied(potentialMove))
                 {

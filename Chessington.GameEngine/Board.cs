@@ -9,7 +9,8 @@ namespace Chessington.GameEngine
     {
         private readonly Piece[,] board;
         public Player CurrentPlayer { get; private set; }
-        public IList<Piece> CapturedPieces { get; private set; } 
+        public IList<Piece> CapturedPieces { get; private set; }
+        public List<Move> MoveHistory { get; set; }
 
         public Board()
             : this(Player.White) { }
@@ -19,6 +20,7 @@ namespace Chessington.GameEngine
             board = boardState ?? new Piece[GameSettings.BoardSize, GameSettings.BoardSize]; 
             CurrentPlayer = currentPlayer;
             CapturedPieces = new List<Piece>();
+            MoveHistory = new List<Move>();
         }
 
         public void AddPiece(Square square, Piece pawn)
@@ -65,6 +67,8 @@ namespace Chessington.GameEngine
             //Move the piece and set the 'from' square to be empty.
             board[to.Row, to.Col] = board[from.Row, from.Col];
             board[from.Row, from.Col] = null;
+
+            MoveHistory.Add(new Move(movingPiece, to));
 
             CurrentPlayer = movingPiece.Player == Player.White ? Player.Black : Player.White;
             OnCurrentPlayerChanged(CurrentPlayer);
