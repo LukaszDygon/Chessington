@@ -148,8 +148,9 @@ namespace Chessington.GameEngine
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
 
-            var oneForwardMove = new Square(position.Row + 1, position.Col);
-            AddIfSafeOrDiscardPawnMove(piece, board, oneForwardMove, availableMoves);
+            AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row + 1, position.Col), availableMoves);
+            AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row + 1, position.Col + 1), availableMoves);
+            AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row + 1, position.Col - 1), availableMoves);
 
             if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && availableMoves.Count > 0)
             {
@@ -163,8 +164,9 @@ namespace Chessington.GameEngine
             var availableMoves = new List<Square>();
             var position = board.FindPiece(piece);
 
-            var oneForwardMove = new Square(position.Row - 1, position.Col);
-            AddIfSafeOrDiscardPawnMove(piece, board, oneForwardMove, availableMoves);
+            AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row - 1, position.Col), availableMoves);
+            AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row - 1, position.Col + 1), availableMoves);
+            AddIfSafeOrDiscardPawnMove(piece, board, new Square(position.Row - 1, position.Col - 1), availableMoves);
 
             if (board.MoveHistory.All(x => x.Piece != board.GetPiece(position)) && availableMoves.Count > 0)
             {
@@ -208,19 +210,23 @@ namespace Chessington.GameEngine
             return availableMoves;
         }
 
-        private static void AddIfSafeOrDiscardMove(Piece piece, Board board, Square newSquare, List<Square> moveList)
+        private static void AddIfSafeOrDiscardMove(Piece piece, Board board, Square newSquare, List<Square> availableMoves)
         {
-            if (CheckSquareInBoard(newSquare) && CheckNotOccupiedByCurrentPlayer(piece, newSquare, board))
+            if (CheckSquareInBoard(newSquare) && (OccupiedByOtherPlayer(piece, newSquare, board) ||
+                                                  !OccupiedByAny(piece, newSquare, board)))
             {
-                moveList.Add(newSquare);
+                availableMoves.Add(newSquare);
             }
         }
 
-        private static void AddIfSafeOrDiscardPawnMove(Piece piece, Board board, Square newSquare, List<Square> moveList)
+        private static void AddIfSafeOrDiscardPawnMove(Piece piece, Board board, Square newSquare, List<Square> availableMoves)
         {
-            if (CheckSquareInBoard(newSquare) && CheckNotOccupiedByAny(piece, newSquare, board))
+            if (CheckSquareInBoard(newSquare) && ((!OccupiedByAny(piece, newSquare, board) &&
+                                                   newSquare.Col == board.FindPiece(piece).Col) ||
+                                                  (OccupiedByOtherPlayer(piece, newSquare, board) &&
+                                                  newSquare.Col != board.FindPiece(piece).Col)))
             {
-                moveList.Add(newSquare);
+                availableMoves.Add(newSquare);
             }
         }
 
@@ -231,15 +237,15 @@ namespace Chessington.GameEngine
         }
 
 
-        private static bool CheckNotOccupiedByCurrentPlayer(Piece piece, Square square, Board board)
+        private static bool OccupiedByOtherPlayer(Piece piece, Square square, Board board)
         {
-            return !(board.IsOccupied(square) &&
-                board.GetPiece(square).Player == piece.Player);
+            return (board.IsOccupied(square) &&
+                board.GetPiece(square).Player != piece.Player);
         }
 
-        private static bool CheckNotOccupiedByAny(Piece piece, Square square, Board board)
+        private static bool OccupiedByAny(Piece piece, Square square, Board board)
         {
-            return !board.IsOccupied(square);
+            return board.IsOccupied(square);
         }
 
     }
