@@ -206,14 +206,16 @@ namespace Chessington.GameEngine
             AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col - 1), availableMoves);
             AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col), availableMoves);
 
+            var checkSquares = GetCheckSquares(piece.Player, board);
+            availableMoves = availableMoves.FindAll(x => !checkSquares.Contains(x));
+
             return availableMoves;
         }
 
         private static void AddIfSafeOrDiscardMove(Piece piece, Board board, Square newSquare, List<Square> availableMoves)
         {
-            if (CheckSquareInBoard(newSquare) && !CheckAccessBlocked(piece, newSquare, board) &&
-                                                       (OccupiedByOtherPlayer(piece, newSquare, board) ||
-                                                       !OccupiedByAny(newSquare, board)))
+            if (CheckSquareInBoard(newSquare) && (OccupiedByOtherPlayer(piece, newSquare, board) ||
+                                                 !OccupiedByAny(newSquare, board)))
             {
                 availableMoves.Add(newSquare);
             }
@@ -246,6 +248,27 @@ namespace Chessington.GameEngine
         private static bool OccupiedByAny(Square square, Board board)
         {
             return board.IsOccupied(square);
+        }
+
+        private static List<Square> GetCheckSquares(Player currentPlayer, Board board)
+        {
+            var checkSquares = new List<Square>();
+
+            for (int row = 0; row < GameSettings.BoardSize; row++)
+            {
+                for (int col = 0; col < GameSettings.BoardSize; col++)
+                {
+                    Piece currentSquarePiece = board.GetPiece(new Square(row, col));
+                    {
+                        if(currentSquarePiece != null && currentSquarePiece.Player != currentPlayer)
+                        {
+                            checkSquares.AddRange(currentSquarePiece.GetAvailableMoves(board));
+                        }
+                    }
+                }
+            }
+
+            return checkSquares;
         }
         //private static bool CheckEnPassant(Piece piece, Square square, Board board)
     }
