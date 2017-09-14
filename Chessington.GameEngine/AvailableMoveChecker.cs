@@ -247,8 +247,6 @@ namespace Chessington.GameEngine
         {
             return board.IsOccupied(square);
         }
-
-
         //private static bool CheckEnPassant(Piece piece, Square square, Board board)
     }
 }
