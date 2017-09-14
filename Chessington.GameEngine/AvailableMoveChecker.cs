@@ -206,14 +206,14 @@ namespace Chessington.GameEngine
             AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col - 1), availableMoves);
             AddIfSafeOrDiscardMove(piece, board, new Square(position.Row - 1, position.Col), availableMoves);
 
-
             return availableMoves;
         }
 
         private static void AddIfSafeOrDiscardMove(Piece piece, Board board, Square newSquare, List<Square> availableMoves)
         {
-            if (CheckSquareInBoard(newSquare) && (OccupiedByOtherPlayer(piece, newSquare, board) ||
-                                                  !OccupiedByAny(newSquare, board)))
+            if (CheckSquareInBoard(newSquare) && !CheckAccessBlocked(piece, newSquare, board) &&
+                                                       (OccupiedByOtherPlayer(piece, newSquare, board) ||
+                                                       !OccupiedByAny(newSquare, board)))
             {
                 availableMoves.Add(newSquare);
             }
@@ -246,83 +246,6 @@ namespace Chessington.GameEngine
         private static bool OccupiedByAny(Square square, Board board)
         {
             return board.IsOccupied(square);
-        }
-
-        private static bool CheckAccessBlocked(Piece piece, Square square, Board board)
-        {
-            if (board.FindPiece(piece).Row == square.Row)
-            {
-                return CheckHorizonalAccessBlocked(piece, square, board);
-            }
-            if (board.FindPiece(piece).Col == square.Col)
-            {
-                return CheckVerticalAccessBlocked(piece, square, board);
-            }
-            if (board.FindPiece(piece).Col - square.Col +
-                board.FindPiece(piece).Row - square.Row == 0)
-            {
-                return CheckAscendingAccessBlocked(piece, square, board);
-            }
-
-            return CheckDescendingAccessBlocked(piece, square, board);
-        }
-
-        private static bool CheckHorizonalAccessBlocked(Piece piece, Square square, Board board)
-        {
-            int difference = board.FindPiece(piece).Col - square.Col;
-            foreach (var passingCol in Enumerable.Range(difference + 1, difference - 1))
-            {
-                if (OccupiedByAny(new Square(square.Row, passingCol), board))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static bool CheckVerticalAccessBlocked(Piece piece, Square square, Board board)
-        {
-            int difference = board.FindPiece(piece).Row - square.Row;
-            foreach (var passingRow in Enumerable.Range(difference + 1, difference - 1))
-            {
-                if (OccupiedByAny(new Square(passingRow, square.Col), board))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static bool CheckAscendingAccessBlocked(Piece piece, Square square, Board board)
-        {
-            int difference = board.FindPiece(piece).Col - square.Col;
-            foreach (var passingRow in Enumerable.Range(difference + 1, difference - 1))
-            {
-                foreach (var passingCol in Enumerable.Range(difference + 1, difference - 1))
-                {
-                    if (OccupiedByAny(new Square(passingRow, passingCol), board))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private static bool CheckDescendingAccessBlocked(Piece piece, Square square, Board board)
-        {
-            int difference = board.FindPiece(piece).Col - square.Col;
-            foreach (var passingRow in Enumerable.Range(board.FindPiece(piece).Row - difference + 1, difference - 1))
-            {
-                foreach (var passingCol in Enumerable.Range(difference + 1, difference - 1))
-                {
-                    if (OccupiedByAny(new Square(passingRow, passingCol), board))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
 
